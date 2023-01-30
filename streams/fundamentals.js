@@ -1,10 +1,10 @@
-import { Readable } from 'node:stream'
+import { Readable, Writable } from 'node:stream'
 
-// reescrita de uma Stream (de leitura)
+// reescrita de uma Stream (de leitura - readable)
 class OneToHundredStream extends Readable {
     index = 1
 
-    _read() { // método obrigatório de toda Stream de Leitura
+    _read() { // método obrigatório de toda stream de leitura
         const i = this.index++
 
         setTimeout(() => {
@@ -19,4 +19,16 @@ class OneToHundredStream extends Readable {
     }
 }
 
-new OneToHundredStream().pipe(process.stdout) // cria uma stream e a transfere a stream de saída do terminal
+// reescrita de uma stream (de escrita - writable)
+class MultiplyByTenStream extends Writable {
+    // streams nunca retornam algo
+
+    // método obrigatório de streams de escrita
+    _write(chunk, encoding, callback) {
+        console.log(Number(chunk.toString()) * 10)
+        callback()
+    }
+}
+
+new OneToHundredStream()
+    .pipe(new MultiplyByTenStream()) // cria uma stream e a transfere a stream de MultiplyByTen
