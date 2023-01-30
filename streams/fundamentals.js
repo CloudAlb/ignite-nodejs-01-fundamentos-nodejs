@@ -1,6 +1,7 @@
-import { Readable, Writable } from 'node:stream'
+import { Readable, Transform, Writable } from 'node:stream'
 
 // reescrita de uma Stream (de leitura - readable)
+// só consigo ler os dados dela
 class OneToHundredStream extends Readable {
     index = 1
 
@@ -19,7 +20,19 @@ class OneToHundredStream extends Readable {
     }
 }
 
+// reescrita de uma stream (de transformação - transform)
+// serve como uma stream intermediária
+// obrigatoriamente lê dados de algum lugar e escreve os dados em outro lugar
+class InverseNumberStream extends Transform {
+    _transform(chunk, encoding, callback) {
+        const transformed = Number(chunk.toString()) * - 1
+
+        callback(null, Buffer.from(String(transformed)))
+    }
+}
+
 // reescrita de uma stream (de escrita - writable)
+// só consigo escrever os dados para ela
 class MultiplyByTenStream extends Writable {
     // streams nunca retornam algo
 
@@ -31,4 +44,5 @@ class MultiplyByTenStream extends Writable {
 }
 
 new OneToHundredStream()
+    .pipe(new InverseNumberStream())
     .pipe(new MultiplyByTenStream()) // cria uma stream e a transfere a stream de MultiplyByTen
